@@ -1,9 +1,11 @@
 import * as React from 'react';
 import { render } from 'react-dom';
 
+import MainView from './components/main/main.component';
+
 import './index.css';
 
 render(
-  <div>Test</div>,
+  <MainView></MainView>,
   document.getElementById('root')
 );
