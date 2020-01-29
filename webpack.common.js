@@ -40,8 +40,7 @@ module.exports = {
         test: /.css$/,
         use: [
           ExtractCSSPlugin.loader,
-          'css-loader',
-          'style-loader'
+          'css-loader'
         ]
       }
     ]
