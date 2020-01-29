@@ -1,0 +1,32 @@
+#default-view {
+  display: flex;
+  flex-flow: column;
+}
+
+#description p {
+  padding: 8%;
+  font-size: 1.2em;
+  font-style: italic;
+  text-align: center;
+}
+
+#default-button-row {
+  display: flex;
+  justify-content: center;
+}
+
+@media only screen and (min-width: 600px) {
+
+}
+
+@media only screen and (min-width: 900px) {
+
+}
+
+@media only screen and (min-width: 1200px) {
+
+}
+
+@media only screen and (min-width: 1800px) {
+
+}
