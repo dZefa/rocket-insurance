@@ -5,19 +5,34 @@ import { Message } from 'primereact/message';
 
 import './rating.component.css';
 
+interface IRatingForm {
+  firstName: string;
+  lastName: string;
+  address1: string;
+  address2?: string;
+  city: string;
+  state: string;
+  zip: string;
+}
+
+interface IErrorMessage {
+  firstName: string;
+  lastName: string;
+  address1: string;
+  city: string;
+  state: string;
+  zip: string;
+}
+
 interface IProps {
   isVisible: boolean;
   toggle: () => void;
 }
 
 interface IState {
-  firstName: string;
-  firstNameValid: boolean;
-  firstNameErrorDisplay: string;
-  lastName: string;
-  lastNameValid: boolean;
-  lastNameErrorDisplay: string;
-  formValid: boolean;
+  form: IRatingForm;
+  error: IErrorMessage;
+  valid: boolean;
 }
 
 class RatingDialog extends React.Component<IProps, IState> {
@@ -25,76 +40,77 @@ class RatingDialog extends React.Component<IProps, IState> {
     super(props);
 
     this.state = {
-      firstName: '',
-      firstNameValid: false,
-      firstNameErrorDisplay: 'none',
-      lastName: '',
-      lastNameValid: false,
-      lastNameErrorDisplay: 'none',
-      formValid: false,
+      form: {
+        firstName: '',
+        lastName: '',
+        address1: '',
+        address2: '',
+        city: '',
+        state: '',
+        zip: '',
+      },
+      error: {
+        firstName: '',
+        lastName: '',
+        address1: '',
+        city: '',
+        state: '',
+        zip: '',
+      },
+      valid: false,
     };
 
-    this.handleFirstName = this.handleFirstName.bind(this);
-    this.handleLastName = this.handleLastName.bind(this);
+    this.handleStringInput = this.handleStringInput.bind(this);
   }
 
-  private firstNameCheck(): void {
-    this.setState((prevState: IState) => {
-      const { firstName } = prevState;
+  private formValidation(errors: IErrorMessage): void {
+    let valid = true;
 
-      if (firstName.length > 0) {
-        return { firstNameValid: true, firstNameErrorDisplay: 'none' };
+    Object.values(errors).forEach((val: string) => {
+      if (valid) {
+        val.length > 0 && (valid = false);
+      }
+    });
+
+    this.setState({ valid });
+  }
+
+  public handleStringInput(e: React.FormEvent<HTMLInputElement>): void {
+    e.preventDefault();
+
+    const error = {...this.state.error};
+    const { value, name } = e.currentTarget;
+
+    switch (name) {
+      case 'firstName': {
+        error.firstName =
+          value.length > 0
+            ? ''
+            : 'First Name is required';
+        
+        break;
       }
 
-      return { firstNameValid: false, firstNameErrorDisplay: 'block' };
-    });
-  }
-
-  private lastNameCheck(): void {
-    this.setState((prevState: IState) => {
-      const { lastName } = prevState;
-
-      if (lastName.length > 0) {
-        return { lastNameValid: true, lastNameErrorDisplay: 'none' };
+      case 'lastName': {
+        error.lastName =
+          value.length > 0
+            ? ''
+            : 'Last Name is required';
       }
-
-      return { lastNameValid: false, lastNameErrorDisplay: 'block' };
-    });
-  }
-
-  private formValidation(): void {
-    this.setState((prevState: IState) => {
-      const { firstNameValid, lastNameValid } = prevState;
-
-      if (firstNameValid && lastNameValid) {
-        return { formValid: true };
+      
+      default: {
+        break;
       }
+    } 
+    
+    this.setState({ error, form: { [name]: value } } as Pick<IState, any>);
 
-      return { formValid: false };
-    });
-  }
-
-  public handleFirstName(e: React.FormEvent<HTMLInputElement>): void {
-    this.setState({
-      firstName: e.currentTarget.value,
-    });
-
-    this.firstNameCheck();
-    this.formValidation();
-  }
-
-  public handleLastName(e: React.FormEvent<HTMLInputElement>): void {
-    this.setState({
-      lastName: e.currentTarget.value,
-    });
-
-    this.lastNameCheck();
-    this.formValidation();
+    this.formValidation(error);
   }
 
   render() {
     const { isVisible, toggle } = this.props;
-    const { firstName, firstNameErrorDisplay, lastName, lastNameErrorDisplay } = this.state;
+    const { form, error } = this.state;
 
     return (
       <Dialog id="rating-dialog" header="Get a Quote" visible={isVisible} focusOnShow={false} modal={true} onHide={toggle}>
@@ -103,15 +119,21 @@ class RatingDialog extends React.Component<IProps, IState> {
             <span className="p-inputgroup-addon">
               <i className="pi pi-id-card"></i>
             </span>
-            <InputText placeholder="First Name" value={firstName} onChange={this.handleFirstName} />
-            <Message severity="error" text="First Name is required" style={{ display: firstNameErrorDisplay }}></Message>
+            <InputText placeholder="First Name" name="firstName" value={form.firstName || ''} onChange={this.handleStringInput} />
+            {
+              error.firstName.length > 0 &&
+              <Message severity="error" text={error.firstName}></Message>
+            }
           </div>
           <div className="p-inputgroup">
             <span className="p-inputgroup-addon">
               <i className="pi pi-id-card"></i>
             </span>
-            <InputText placeholder="Last Name" value={lastName} onChange={this.handleLastName} />
-            <Message severity="error" text="Last Name is required" style={{ display: lastNameErrorDisplay }}></Message>
+            <InputText placeholder="Last Name" name="lastName" value={form.lastName || ''} onChange={this.handleStringInput} />
+            {
+              error.lastName.length > 0 &&
+              <Message severity="error" text={error.lastName}></Message>
+            }
           </div>
         </form>
       </Dialog>
