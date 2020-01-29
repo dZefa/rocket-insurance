@@ -13,8 +13,11 @@ interface IProps {
 interface IState {
   firstName: string;
   firstNameValid: boolean;
-  formValid: boolean;
   firstNameErrorDisplay: string;
+  lastName: string;
+  lastNameValid: boolean;
+  lastNameErrorDisplay: string;
+  formValid: boolean;
 }
 
 class RatingDialog extends React.Component<IProps, IState> {
@@ -24,11 +27,15 @@ class RatingDialog extends React.Component<IProps, IState> {
     this.state = {
       firstName: '',
       firstNameValid: false,
-      formValid: false,
       firstNameErrorDisplay: 'none',
+      lastName: '',
+      lastNameValid: false,
+      lastNameErrorDisplay: 'none',
+      formValid: false,
     };
 
     this.handleFirstName = this.handleFirstName.bind(this);
+    this.handleLastName = this.handleLastName.bind(this);
   }
 
   private firstNameCheck(): void {
@@ -43,11 +50,23 @@ class RatingDialog extends React.Component<IProps, IState> {
     });
   }
 
+  private lastNameCheck(): void {
+    this.setState((prevState: IState) => {
+      const { lastName } = prevState;
+
+      if (lastName.length > 0) {
+        return { lastNameValid: true, lastNameErrorDisplay: 'none' };
+      }
+
+      return { lastNameValid: false, lastNameErrorDisplay: 'block' };
+    });
+  }
+
   private formValidation(): void {
     this.setState((prevState: IState) => {
-      const { firstNameValid } = prevState;
+      const { firstNameValid, lastNameValid } = prevState;
 
-      if (firstNameValid) {
+      if (firstNameValid && lastNameValid) {
         return { formValid: true };
       }
 
@@ -64,9 +83,18 @@ class RatingDialog extends React.Component<IProps, IState> {
     this.formValidation();
   }
 
+  public handleLastName(e: React.FormEvent<HTMLInputElement>): void {
+    this.setState({
+      lastName: e.currentTarget.value,
+    });
+
+    this.lastNameCheck();
+    this.formValidation();
+  }
+
   render() {
     const { isVisible, toggle } = this.props;
-    const { firstName, firstNameErrorDisplay } = this.state;
+    const { firstName, firstNameErrorDisplay, lastName, lastNameErrorDisplay } = this.state;
 
     return (
       <Dialog id="rating-dialog" header="Get a Quote" visible={isVisible} focusOnShow={false} modal={true} onHide={toggle}>
@@ -77,6 +105,13 @@ class RatingDialog extends React.Component<IProps, IState> {
             </span>
             <InputText placeholder="First Name" value={firstName} onChange={this.handleFirstName} />
             <Message severity="error" text="First Name is required" style={{ display: firstNameErrorDisplay }}></Message>
+          </div>
+          <div className="p-inputgroup">
+            <span className="p-inputgroup-addon">
+              <i className="pi pi-id-card"></i>
+            </span>
+            <InputText placeholder="Last Name" value={lastName} onChange={this.handleLastName} />
+            <Message severity="error" text="Last Name is required" style={{ display: lastNameErrorDisplay }}></Message>
           </div>
         </form>
       </Dialog>
