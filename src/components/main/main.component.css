@@ -13,6 +13,13 @@
   margin: 0;
 }
 
+#viewport {
+  min-height: 70vh;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+}
+
 @media only screen and (min-width: 600px) {
   #main {
     margin: 0 10%;
@@ -23,12 +30,24 @@
   #main {
     margin: 0 15%;
   }
+
+  #viewport {
+    min-height: 60vh;
+    width:80%;
+    margin: auto;
+  }
 }
 
 @media only screen and (min-width: 1200px) {
-  
+  #viewport {
+    min-height: 55vh;
+    width: 60%;
+  }
 }
 
 @media only screen and (min-width: 1800px) {
-
+  #viewport {
+    min-height: 40vh;
+    width: 40%;
+  }
 }
