@@ -27,7 +27,7 @@ switch (process.env.NODE_ENV) {
       mode: 'development',
       devServer: {
         open: true,
-        port: 0824
+        port: 2408
       }
     });
   }
