@@ -4,6 +4,7 @@ import './main.component.css';
 
 import { DefaultView } from './default/default.component';
 import RatingDialog from '../rating/rating.component';
+import QuoteView from '../quote/quote.component';
 
 interface IAddress {
   line_1: string;
@@ -19,12 +20,17 @@ interface ICompletedForm {
   address: IAddress;
 }
 
+interface IQuote {
+
+}
+
 interface IProps {
 
 }
 
 interface IState {
   showForm: boolean;
+  quote: IQuote;
 }
 
 class MainView extends React.Component<IProps, IState> {
@@ -33,6 +39,7 @@ class MainView extends React.Component<IProps, IState> {
 
     this.state = {
       showForm: false,
+      quote: null,
     };
 
     this.ratingClickHandler = this.ratingClickHandler.bind(this);
@@ -59,7 +66,7 @@ class MainView extends React.Component<IProps, IState> {
   }
 
   render() {
-    const { showForm } = this.state;
+    const { showForm, quote } = this.state;
 
     return (
       <div id="main">
@@ -68,7 +75,11 @@ class MainView extends React.Component<IProps, IState> {
           <h1>Rocket Insurance</h1>
         </header>
         <div id="viewport">
-          <DefaultView clickHandler={this.ratingClickHandler}></DefaultView>
+          {
+            quote 
+            ? <QuoteView></QuoteView>
+            : <DefaultView clickHandler={this.ratingClickHandler}></DefaultView>
+          }
         </div>
       </div>
     )
