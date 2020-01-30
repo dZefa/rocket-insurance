@@ -152,7 +152,7 @@ class RatingDialog extends React.Component<IProps, IState> {
         error.postal =
           value.length === 5
             ? ''
-            : 'postal Code must be 5 digits';
+            : 'Postal Code must be 5 digits';
 
         break;
       }
@@ -175,68 +175,48 @@ class RatingDialog extends React.Component<IProps, IState> {
 
     return (
       <Dialog id="rating-dialog" header="Get a Quote" visible={isVisible} focusOnShow={false} modal={true} onHide={toggle}>
+        <p className="dialog-description">To get started, please fill out this form.</p>
         <form>
-          <div className="p-inputgroup">
-            <span className="p-inputgroup-addon">
-              <i className="pi pi-id-card"></i>
-            </span>
-            <InputText placeholder="First Name*" name="first_name" value={form.first_name || ''} onChange={this.handleStringInput} />
+          <div className="p-inputgroup rating-input-group">
+            <InputText className="rating-input" placeholder="First Name*" name="first_name" value={form.first_name || ''} onChange={this.handleStringInput} />
             {
               error.first_name.length > 0 &&
               <Message severity="error" text={error.first_name}></Message>
             }
           </div>
-          <div className="p-inputgroup">
-            <span className="p-inputgroup-addon">
-              <i className="pi pi-id-card"></i>
-            </span>
-            <InputText placeholder="Last Name*" name="last_name" value={form.last_name || ''} onChange={this.handleStringInput} />
+          <div className="p-inputgroup rating-input-group">
+            <InputText className="rating-input" placeholder="Last Name*" name="last_name" value={form.last_name || ''} onChange={this.handleStringInput} />
             {
               error.last_name.length > 0 &&
               <Message severity="error" text={error.last_name}></Message>
             }
           </div>
-          <div className="p-inputgroup">
-            <span className="p-inputgroup-addon">
-              <i className="pi pi-id-card"></i>
-            </span>
-            <InputText placeholder="Address Line 1*" name="line_1" value={form.line_1 || ''} onChange={this.handleStringInput} />
+          <div className="p-inputgroup rating-input-group">
+            <InputText className="rating-input" placeholder="Address Line 1*" name="line_1" value={form.line_1 || ''} onChange={this.handleStringInput} />
             {
               error.line_1.length > 0 &&
               <Message severity="error" text={error.line_1}></Message>
             }
           </div>
-          <div className="p-inputgroup">
-            <span className="p-inputgroup-addon">
-              <i className="pi pi-id-card"></i>
-            </span>
-            <InputText placeholder="Apt, Unit or Suite" name="line_2" value={form.line_2 || ''} onChange={this.handleStringInput} />
+          <div className="p-inputgroup rating-input-group">
+            <InputText className="rating-input" placeholder="Apt, Unit or Suite" name="line_2" value={form.line_2 || ''} onChange={this.handleStringInput} />
           </div>
-          <div className="p-inputgroup">
-            <span className="p-inputgroup-addon">
-              <i className="pi pi-id-card"></i>
-            </span>
-            <InputText placeholder="City*" name="city" value={form.city || ''} onChange={this.handleStringInput} />
+          <div className="p-inputgroup rating-input-group">
+            <InputText className="rating-input" placeholder="City*" name="city" value={form.city || ''} onChange={this.handleStringInput} />
             {
               error.city.length > 0 &&
               <Message severity="error" text={error.city}></Message>
             }
           </div>
-          <div className="p-inputgroup">
-            <span className="p-inputgroup-addon">
-              <i className="pi pi-id-card"></i>
-            </span>
-            <Dropdown value={form.region} options={states} placeholder="Select a State" onChange={this.handleRegionChange} />
+          <div className="p-inputgroup rating-input-group">
+            <Dropdown value={form.region} options={states} placeholder="State*" onChange={this.handleRegionChange} />
             {
               error.region.length > 0 &&
               <Message severity="error" text={error.region}></Message>
             }
           </div>
-          <div className="p-inputgroup">
-            <span className="p-inputgroup-addon">
-              <i className="pi pi-id-card"></i>
-            </span>
-            <InputText placeholder="postal Code*" name="postal" keyfilter={/^[0-9]/} value={form.postal || ''} onChange={this.handleStringInput} />
+          <div className="p-inputgroup rating-input-group">
+            <InputText className="rating-input" placeholder="Postal Code*" name="postal" keyfilter={/^[0-9]/} value={form.postal || ''} onChange={this.handleStringInput} />
             {
               error.postal.length > 0 &&
               <Message severity="error" text={error.postal}></Message>
