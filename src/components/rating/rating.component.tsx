@@ -3,8 +3,23 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Dropdown } from 'primereact/dropdown';
+import { Button } from 'primereact/button';
 
 import './rating.component.css';
+
+interface IAddress {
+  line_1: string;
+  line_2?: string;
+  city: string;
+  region: string;
+  postal: string;
+}
+
+interface ICompletedForm {
+  first_name: string;
+  last_name: string;
+  address: IAddress;
+}
 
 interface IRatingForm {
   first_name: string;
@@ -25,6 +40,14 @@ interface IErrorMessage {
   postal: string;
 }
 
+interface IValid {
+  first_name: boolean;
+  last_name: boolean;
+  line_1: boolean;
+  city: boolean;
+  postal: boolean;
+}
+
 interface IDropdownOption {
   label: string;
   value: string;
@@ -33,12 +56,14 @@ interface IDropdownOption {
 interface IProps {
   isVisible: boolean;
   toggle: () => void;
+  handleSubmit: (formData: ICompletedForm) => void;
 }
 
 interface IState {
   form: IRatingForm;
   error: IErrorMessage;
-  valid: boolean;
+  valid: IValid;
+  isValid: boolean;
 }
 
 class RatingDialog extends React.Component<IProps, IState> {
@@ -63,23 +88,32 @@ class RatingDialog extends React.Component<IProps, IState> {
         region: '',
         postal: '',
       },
-      valid: false,
+      valid: {
+        first_name: false,
+        last_name: false,
+        line_1: false,
+        city: false,
+        postal: false,
+      },
+      isValid: false,
     };
 
     this.handleStringInput = this.handleStringInput.bind(this);
     this.handleRegionChange = this.handleRegionChange.bind(this);
+    this.closeDialog = this.closeDialog.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  private formValidation(errors: IErrorMessage): void {
-    let valid = true;
+  private formValidation(): void {
+    this.setState(({ valid, form }: IState) => {
+      const { first_name, last_name, line_1, city, postal } = valid;
 
-    Object.values(errors).forEach((val: string) => {
-      if (valid) {
-        val.length > 0 && (valid = false);
+      if (first_name && last_name && line_1 && city && (form.region.length > 0) && postal) {
+        return { isValid: true };
       }
-    });
 
-    this.setState({ valid });
+      return { isValid: false };
+    });
   }
 
   private formatStates(): IDropdownOption[] {
@@ -90,16 +124,54 @@ class RatingDialog extends React.Component<IProps, IState> {
     });
   }
 
-  public handleRegionChange(e: { originalEvent: Event, value: string }): void {
+  private resetState(): void {
     this.setState({
-      form: { region: e.value }
-    } as Pick<IState, any>);
+      form: {
+        first_name: '',
+        last_name: '',
+        line_1: '',
+        line_2: '',
+        city: '',
+        region: '',
+        postal: '',
+      },
+      error: {
+        first_name: '',
+        last_name: '',
+        line_1: '',
+        city: '',
+        region: '',
+        postal: '',
+      },
+      valid: {
+        first_name: false,
+        last_name: false,
+        line_1: false,
+        city: false,
+        postal: false,
+      },
+      isValid: false,
+    });
+  }
+
+  public closeDialog(e: React.MouseEvent<HTMLButtonElement>): void {
+    e.preventDefault();
+
+    this.props.toggle();
+    this.resetState();
+  }
+
+  public handleRegionChange(e: { originalEvent: Event, value: string }): void {
+    this.setState((prevState: IState) => {
+      return { ...prevState, form: { ...prevState.form, region: e.value } };
+    });
   }
 
   public handleStringInput(e: React.FormEvent<HTMLInputElement>): void {
     e.preventDefault();
 
     const error = {...this.state.error};
+    const valid = {...this.state.valid};
     const { value, name } = e.currentTarget;
 
     switch (name) {
@@ -109,6 +181,10 @@ class RatingDialog extends React.Component<IProps, IState> {
             ? ''
             : 'First Name is required';
         
+        error.first_name === ''
+          ? valid.first_name = true
+          : valid.first_name = false;
+
         break;
       }
 
@@ -117,6 +193,10 @@ class RatingDialog extends React.Component<IProps, IState> {
           value.length > 0
             ? ''
             : 'Last Name is required';
+
+        error.last_name === ''
+          ? valid.last_name = true
+          : valid.last_name = false;
 
         break;
       }
@@ -127,6 +207,10 @@ class RatingDialog extends React.Component<IProps, IState> {
             ? ''
             : 'Address is required';
 
+        error.line_1 === ''
+          ? valid.line_1 = true
+          : valid.line_1 = false;
+  
         break;
       }
 
@@ -136,15 +220,10 @@ class RatingDialog extends React.Component<IProps, IState> {
             ? ''
             : 'City is required';
 
-        break;
-      }
-
-      case 'region': {
-        error.region =
-          value.length === 2
-            ? ''
-            : 'State is required';
-
+        error.city === ''
+          ? valid.city = true
+          : valid.city = false;
+  
         break;
       }
 
@@ -154,6 +233,10 @@ class RatingDialog extends React.Component<IProps, IState> {
             ? ''
             : 'Postal Code must be 5 digits';
 
+        error.postal === ''
+          ? valid.postal = true
+          : valid.postal = false;
+  
         break;
       }
       
@@ -162,47 +245,82 @@ class RatingDialog extends React.Component<IProps, IState> {
       }
     } 
     
-    this.setState({ error, form: { [name]: value } } as Pick<IState, any>);
+    this.setState((prevState: IState) => {
+      return {
+        ...prevState,
+        error,
+        valid,
+        form: { ...prevState.form, [name]: value }
+      } as Pick<IState, any>
+    });
 
-    this.formValidation(error);
+    this.formValidation();
+  }
+
+  public handleSubmit(e: React.MouseEvent<HTMLButtonElement> | React.FormEvent<HTMLFormElement>): void {
+    e.preventDefault();
+
+    const { first_name, last_name, line_1, line_2, city, region, postal } = this.state.form;
+    const completedForm: ICompletedForm = {
+      first_name,
+      last_name,
+      address: {
+        line_1,
+        line_2: line_2 === '' ? null : line_2,
+        city,
+        region,
+        postal,
+      }
+    };
+
+    this.props.handleSubmit(completedForm);
+    this.props.toggle();
+    this.resetState();
   }
 
   render() {
     const { isVisible, toggle } = this.props;
-    const { form, error } = this.state;
+    const { form, error, isValid } = this.state;
 
     const states = this.formatStates();
 
+    const displayFooter = (
+      <div>
+        <Button label="Cancel" onClick={this.closeDialog} />
+        <Button label="Submit" onClick={this.handleSubmit} disabled={!isValid} />
+      </div>
+    );
+
     return (
-      <Dialog id="rating-dialog" header="Get a Quote" visible={isVisible} focusOnShow={false} modal={true} onHide={toggle}>
+      <Dialog id="rating-dialog" header="Get a Quote" visible={isVisible} focusOnShow={false} modal={true} onHide={toggle} footer={displayFooter}>
         <p className="dialog-description">To get started, please fill out this form.</p>
-        <form>
+        <form onSubmit={this.handleSubmit}>
           <div className="p-inputgroup rating-input-group">
-            <InputText className="rating-input" placeholder="First Name*" name="first_name" value={form.first_name || ''} onChange={this.handleStringInput} />
+            <InputText className="rating-input" placeholder="First Name*" name="first_name" value={form.first_name} onChange={this.handleStringInput} />
             {
               error.first_name.length > 0 &&
               <Message severity="error" text={error.first_name}></Message>
             }
           </div>
           <div className="p-inputgroup rating-input-group">
-            <InputText className="rating-input" placeholder="Last Name*" name="last_name" value={form.last_name || ''} onChange={this.handleStringInput} />
+            <InputText className="rating-input" placeholder="Last Name*" name="last_name" value={form.last_name} onChange={this.handleStringInput} />
             {
               error.last_name.length > 0 &&
               <Message severity="error" text={error.last_name}></Message>
             }
           </div>
           <div className="p-inputgroup rating-input-group">
-            <InputText className="rating-input" placeholder="Address Line 1*" name="line_1" value={form.line_1 || ''} onChange={this.handleStringInput} />
+            <InputText className="rating-input" placeholder="Address Line 1*" name="line_1" value={form.line_1} onChange={this.handleStringInput} />
             {
               error.line_1.length > 0 &&
               <Message severity="error" text={error.line_1}></Message>
             }
           </div>
           <div className="p-inputgroup rating-input-group">
-            <InputText className="rating-input" placeholder="Apt, Unit or Suite" name="line_2" value={form.line_2 || ''} onChange={this.handleStringInput} />
+            <InputText className="rating-input" placeholder="Apt, Unit or Suite" name="line_2" value={form.line_2} onChange={this.handleStringInput} />
           </div>
           <div className="p-inputgroup rating-input-group">
-            <InputText className="rating-input" placeholder="City*" name="city" value={form.city || ''} onChange={this.handleStringInput} />
+            <InputText className="rating-input" placeholder="City*" name="city" value={form.city} onChange={this.handleStringInput} />
             {
               error.city.length > 0 &&
               <Message severity="error" text={error.city}></Message>
@@ -210,18 +328,15 @@ class RatingDialog extends React.Component<IProps, IState> {
           </div>
           <div className="p-inputgroup rating-input-group">
             <Dropdown value={form.region} options={states} placeholder="State*" onChange={this.handleRegionChange} />
-            {
-              error.region.length > 0 &&
-              <Message severity="error" text={error.region}></Message>
-            }
           </div>
           <div className="p-inputgroup rating-input-group">
-            <InputText className="rating-input" placeholder="Postal Code*" name="postal" keyfilter={/^[0-9]/} value={form.postal || ''} onChange={this.handleStringInput} />
+            <InputText className="rating-input" placeholder="Postal Code*" name="postal" keyfilter={/^[0-9]/} value={form.postal} onChange={this.handleStringInput} />
             {
               error.postal.length > 0 &&
               <Message severity="error" text={error.postal}></Message>
             }
           </div>
+          <button type="submit" hidden disabled={!isValid} onClick={this.handleSubmit}></button>
         </form>
       </Dialog>
     )
