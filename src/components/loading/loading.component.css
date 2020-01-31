@@ -1,0 +1,11 @@
+#loading {
+  z-index: 9000;
+  background-color: white;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+}
+
+#loading-description {
+  text-align: center;
+}
