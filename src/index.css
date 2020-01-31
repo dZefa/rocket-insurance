@@ -10,3 +10,7 @@ html, body {
   background-image: url('./assets/starry-night.jpg');
   color: white;
 }
+
+.base-background {
+  background-color: black;
+}

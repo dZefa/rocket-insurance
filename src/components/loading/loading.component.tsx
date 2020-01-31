@@ -9,7 +9,7 @@ interface IProps {
 
 export function LoadingView(props: IProps) {
   return (
-    <div id="loading">
+    <div id="loading" className="base-background">
       <ProgressSpinner></ProgressSpinner>
       <div id="loading-description">
         <h1>Jupiter recognize!</h1>

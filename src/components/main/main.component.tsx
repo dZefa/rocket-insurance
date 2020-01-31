@@ -131,7 +131,7 @@ class MainView extends React.Component<IProps, IState> {
     return (
       <div id="main">
         <RatingDialog isVisible={showForm} toggle={this.hideRatingDialog} handleSubmit={this.handleRatingSubmit} />
-        <header id="header">
+        <header id="header" className="base-background">
           <h1>Rocket Insurance 🚀</h1>
         </header>
         <div id="viewport">

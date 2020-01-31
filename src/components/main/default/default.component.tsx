@@ -10,7 +10,7 @@ interface IProps {
 export function DefaultView(props: IProps) {
   return (
     <div id="default-view">
-      <div id="description">
+      <div id="description" className="base-background">
         <p>As interplanetary travel becomes mainstream, we're excited to offer rocket owners comprehensive coverage options to let them fly through space worry-free.</p>
       </div>
       <div id="default-button-row">
