@@ -4,6 +4,7 @@ import axios from 'axios';
 import './main.component.css';
 
 import { DefaultView } from './default/default.component';
+import { LoadingView } from '../loading/loading.component';
 import RatingDialog from '../rating/rating.component';
 import QuoteView from '../quote/quote.component';
 
@@ -52,6 +53,7 @@ interface IProps {
 interface IState {
   showForm: boolean;
   quote: IQuote;
+  isLoading: boolean;
 }
 
 class MainView extends React.Component<IProps, IState> {
@@ -61,6 +63,7 @@ class MainView extends React.Component<IProps, IState> {
     this.state = {
       showForm: false,
       quote: null,
+      isLoading: false,
     };
 
     this.ratingClickHandler = this.ratingClickHandler.bind(this);
@@ -82,14 +85,22 @@ class MainView extends React.Component<IProps, IState> {
     });
   }
 
+  private toggleRatingDialog(): void {
+    this.setState({ showForm: true});
+  }
+
+  private startLoading(): void {
+    this.setState({ isLoading: true });
+  }
+
+  private stopLoading(): void {
+    this.setState({ isLoading: false });
+  }
+
   public ratingClickHandler(e: React.MouseEvent<HTMLButtonElement>): void {
     e.preventDefault();
 
     this.toggleRatingDialog();
-  }
-
-  private toggleRatingDialog(): void {
-    this.setState({ showForm: true});
   }
 
   public hideRatingDialog(): void {
@@ -98,19 +109,24 @@ class MainView extends React.Component<IProps, IState> {
 
   public async handleRatingSubmit(formData: ICompletedForm): Promise<void> {
     try {
+      this.startLoading();
+  
       const quote = await this.getQuotes(formData);
 
-      console.log(quote);
-
       this.setState({ quote });
+
+      setTimeout(() => {
+        this.stopLoading();
+      }, 2000);
     }
     catch (err) {
       this.setState({ quote: null });
+      this.stopLoading();
     }
   }
 
   render() {
-    const { showForm, quote } = this.state;
+    const { showForm, quote, isLoading } = this.state;
 
     return (
       <div id="main">
@@ -120,9 +136,16 @@ class MainView extends React.Component<IProps, IState> {
         </header>
         <div id="viewport">
           {
-            quote 
-            ? <QuoteView quote={quote}></QuoteView>
-            : <DefaultView clickHandler={this.ratingClickHandler}></DefaultView>
+            isLoading &&
+            <LoadingView></LoadingView>
+          }
+          {
+            (quote && !isLoading) &&
+            <QuoteView quote={quote}></QuoteView>
+          }
+          {
+            (!quote && !isLoading) &&
+            <DefaultView clickHandler={this.ratingClickHandler}></DefaultView>
           }
         </div>
       </div>
