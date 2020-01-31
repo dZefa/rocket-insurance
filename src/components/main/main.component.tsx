@@ -1,4 +1,5 @@
 import * as React from 'react';
+import axios from 'axios';
 
 import './main.component.css';
 
@@ -20,8 +21,28 @@ interface ICompletedForm {
   address: IAddress;
 }
 
-interface IQuote {
+interface IVariableOption {
+  title: string;
+  description: string;
+  values: number[];
+}
 
+interface IQuote {
+  quoteId: string;
+  rating_address: IAddress;
+  policy_holder: {
+    first_name: string;
+    last_name: string;
+  };
+  variable_options: {
+    deductible: IVariableOption;
+    asteroid_collision: IVariableOption;
+  };
+  variable_selections: {
+    deductible: number;
+    asteroid_collision: number;
+  };
+  premium: number;
 }
 
 interface IProps {
@@ -47,6 +68,20 @@ class MainView extends React.Component<IProps, IState> {
     this.handleRatingSubmit = this.handleRatingSubmit.bind(this);
   }
 
+  private getQuotes(formData: ICompletedForm): Promise<IQuote> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const { data } = await axios.post('https://fed-challenge-api.sure.now.sh/api/v1/quotes', formData);
+
+        resolve(data.quote);
+      }
+      catch (err) {
+        console.log(err);
+        reject(err);
+      }
+    });
+  }
+
   public ratingClickHandler(e: React.MouseEvent<HTMLButtonElement>): void {
     e.preventDefault();
 
@@ -61,8 +96,17 @@ class MainView extends React.Component<IProps, IState> {
     this.setState({ showForm: false });
   }
 
-  public handleRatingSubmit(formData: ICompletedForm): void {
-    console.log(formData);
+  public async handleRatingSubmit(formData: ICompletedForm): Promise<void> {
+    try {
+      const quote = await this.getQuotes(formData);
+
+      console.log(quote);
+
+      this.setState({ quote });
+    }
+    catch (err) {
+      this.setState({ quote: null });
+    }
   }
 
   render() {
@@ -72,12 +116,12 @@ class MainView extends React.Component<IProps, IState> {
       <div id="main">
         <RatingDialog isVisible={showForm} toggle={this.hideRatingDialog} handleSubmit={this.handleRatingSubmit} />
         <header id="header">
-          <h1>Rocket Insurance</h1>
+          <h1>Rocket Insurance 🚀</h1>
         </header>
         <div id="viewport">
           {
             quote 
-            ? <QuoteView></QuoteView>
+            ? <QuoteView quote={quote}></QuoteView>
             : <DefaultView clickHandler={this.ratingClickHandler}></DefaultView>
           }
         </div>
