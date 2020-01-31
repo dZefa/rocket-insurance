@@ -7,4 +7,6 @@ html, body {
 
 #root {
   height: 100%;
+  background-image: url('./assets/starry-night.jpg');
+  color: white;
 }
